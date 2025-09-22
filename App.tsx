@@ -30,6 +30,7 @@ const SECTIONS = [
 
 const App: React.FC = () => {
   const [theme, setThemeState] = useState<'default' | 'hobbies'>('default');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All Projects');
   const [isBgTransitioning, setIsBgTransitioning] = useState(false);
   const [transitionState, setTransitionState] = useState<TransitionState>({
     isTransitioning: false,
@@ -94,6 +95,19 @@ const App: React.FC = () => {
       });
     };
   }, []);
+  
+  useEffect(() => {
+    const isProjectsSectionActive = ['projects-intro', 'projects'].includes(activeSection);
+    if (!isProjectsSectionActive) {
+      if (selectedCategory !== 'All Projects') {
+        setSelectedCategory('All Projects');
+      }
+      if (theme !== 'default') {
+        setThemeState('default');
+      }
+    }
+  }, [activeSection, selectedCategory, theme]);
+
 
   const handleSetTheme = (newTheme: 'default' | 'hobbies', event: React.MouseEvent) => {
     if (newTheme === theme) return;
@@ -122,6 +136,14 @@ const App: React.FC = () => {
             top: sectionElement.offsetTop,
             behavior: 'smooth',
         });
+    }
+  };
+
+  const handleCategorySelect = (category: string, event: React.MouseEvent) => {
+    setSelectedCategory(category);
+    const newTheme = category === 'Hobbies' ? 'hobbies' : 'default';
+    if (newTheme !== theme) {
+      handleSetTheme(newTheme, event);
     }
   };
 
@@ -162,7 +184,8 @@ const App: React.FC = () => {
         <div id="projects" ref={(el) => { sectionRefs.current.set('projects', el); }}>
           <ProjectsSection
             ref={projectsSectionRef}
-            setTheme={handleSetTheme}
+            selectedCategory={selectedCategory}
+            onCategorySelect={handleCategorySelect}
             projectToHighlight={projectToHighlight}
             onHighlightComplete={() => setProjectToHighlight(null)}
           />

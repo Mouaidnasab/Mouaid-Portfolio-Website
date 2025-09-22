@@ -17,7 +17,8 @@ type SortKey = keyof Pick<Project, 'name' | 'category' | 'dateStarted'>;
 type SortDirection = 'asc' | 'desc';
 
 interface ProjectsSectionProps {
-  setTheme: (theme: 'default' | 'hobbies', event: React.MouseEvent) => void;
+  selectedCategory: string;
+  onCategorySelect: (category: string, event: React.MouseEvent) => void;
   projectToHighlight?: number | null;
   onHighlightComplete?: () => void;
 }
@@ -57,8 +58,7 @@ const SortableHeader: React.FC<{
 };
 
 
-const ProjectsSection = React.forwardRef<HTMLElement, ProjectsSectionProps>(({ setTheme, projectToHighlight, onHighlightComplete }, ref) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('All Projects');
+const ProjectsSection = React.forwardRef<HTMLElement, ProjectsSectionProps>(({ selectedCategory, onCategorySelect, projectToHighlight, onHighlightComplete }, ref) => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(PROJECTS[0]);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -138,12 +138,7 @@ const ProjectsSection = React.forwardRef<HTMLElement, ProjectsSectionProps>(({ s
   const isHobbiesMode = selectedCategory === 'Hobbies';
 
   const handleCategorySelect = (category: string, event: React.MouseEvent) => {
-    setSelectedCategory(category);
-    if (category === 'Hobbies') {
-      setTheme('hobbies', event);
-    } else {
-      setTheme('default', event);
-    }
+    onCategorySelect(category, event);
     if (window.innerWidth < 768) {
         setIsMobileFiltersOpen(false);
     }
@@ -195,7 +190,6 @@ const ProjectsSection = React.forwardRef<HTMLElement, ProjectsSectionProps>(({ s
       const projectToSelect = PROJECTS.find(p => p.id === projectToHighlight);
       if (projectToSelect) {
         // Reset filters to ensure the selected project is visible
-        setSelectedCategory('All Projects');
         setSearchTerm('');
         setSelectedTags([]);
         setSelectedTechs([]);
